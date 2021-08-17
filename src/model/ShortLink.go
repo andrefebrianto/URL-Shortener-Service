@@ -4,9 +4,9 @@ import (
 	"time"
 )
 
-// Book ...
+// ShortLink ...
 type ShortLink struct {
-	Id             uint      `json:"id" gorm:"primary_key"`
+	Id             string    `json:"id" gorm:"primary_key"`
 	Code           string    `json:"code"`
 	Url            string    `json:"url"`
 	CreatedAt      time.Time `json:"createdAt"`
