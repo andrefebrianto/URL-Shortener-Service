@@ -3,13 +3,13 @@ package httpcontroller
 import (
 	"net/http"
 
-	"github.com/andrefebrianto/URL-Shortener-Service/src/domain/ShortLink/usecase"
+	usecase "github.com/andrefebrianto/URL-Shortener-Service/src/domain/ShortLink/contract"
 	model "github.com/andrefebrianto/URL-Shortener-Service/src/model"
 	"github.com/labstack/echo/v4"
 )
 
 type ShortLinkHttpController struct {
-	shortLinkUseCase usecase.ShortLinkUseCase
+	shortLinkUseCase usecase.ShortLinkUsecase
 }
 
 func CreateShortLinkHttpController(server *echo.Echo) {
