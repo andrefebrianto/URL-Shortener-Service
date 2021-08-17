@@ -7,7 +7,7 @@ import (
 )
 
 type ShortLinkUsecase interface {
-	Fetch(ctx context.Context) ([]model.ShortLink, error)
+	GetAll(ctx context.Context) ([]model.ShortLink, error)
 	GetByCode(ctx context.Context, code string) (model.ShortLink, error)
 	Create(ctx context.Context, shortlink *model.ShortLink) error
 	UpdateByCode(ctx context.Context, shortlink *model.ShortLink) error
@@ -15,7 +15,7 @@ type ShortLinkUsecase interface {
 }
 
 type ShortLinkRepository interface {
-	Fetch(ctx context.Context) ([]model.ShortLink, error)
+	GetAll(ctx context.Context) ([]model.ShortLink, error)
 	GetByCode(ctx context.Context, code string) (model.ShortLink, error)
 	Create(ctx context.Context, shortlink *model.ShortLink) error
 	UpdateByCode(ctx context.Context, shortlink *model.ShortLink) error
