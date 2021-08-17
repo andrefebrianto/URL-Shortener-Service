@@ -23,6 +23,22 @@ func CreateShortLinkUseCase(command command.CassandraCommandRepository, query qu
 	}
 }
 
-func (usecase ShortLinkUseCase) CreateShortLink(mainContext context.Context, shortlink *model.ShortLink) (*model.ShortLink, error) {
+func (usecase ShortLinkUseCase) Create(mainContext context.Context, shortlink *model.ShortLink) (*model.ShortLink, error) {
 	return nil, nil
+}
+
+func (usecase ShortLinkUseCase) GetAll(ctx context.Context) ([]model.ShortLink, error) {
+	return nil, nil
+}
+
+func (usecase ShortLinkUseCase) GetByCode(ctx context.Context, code string) (model.ShortLink, error) {
+	return model.ShortLink{}, nil
+}
+
+func (usecase ShortLinkUseCase) UpdateByCode(ctx context.Context, shortlink *model.ShortLink) error {
+	return nil
+}
+
+func (usecase ShortLinkUseCase) DeleteByCode(ctx context.Context, code string) error {
+	return nil
 }
