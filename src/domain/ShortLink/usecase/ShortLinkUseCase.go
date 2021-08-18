@@ -4,18 +4,17 @@ import (
 	"context"
 	"time"
 
-	"github.com/andrefebrianto/URL-Shortener-Service/src/domain/ShortLink/repository/command"
-	"github.com/andrefebrianto/URL-Shortener-Service/src/domain/ShortLink/repository/query"
+	"github.com/andrefebrianto/URL-Shortener-Service/src/domain/ShortLink/contract"
 	model "github.com/andrefebrianto/URL-Shortener-Service/src/model"
 )
 
 type ShortLinkUseCase struct {
-	cassandraCommandRepository command.CassandraCommandRepository
-	cassandraQueryRepository   query.CassandraQueryRepository
+	cassandraCommandRepository contract.ShortLinkCommandRepository
+	cassandraQueryRepository   contract.ShortLinkQueryRepository
 	contextTimeout             time.Duration
 }
 
-func CreateShortLinkUseCase(command command.CassandraCommandRepository, query query.CassandraQueryRepository, timeout time.Duration) ShortLinkUseCase {
+func CreateShortLinkUseCase(command contract.ShortLinkCommandRepository, query contract.ShortLinkQueryRepository, timeout time.Duration) ShortLinkUseCase {
 	return ShortLinkUseCase{
 		cassandraCommandRepository: command,
 		cassandraQueryRepository:   query,

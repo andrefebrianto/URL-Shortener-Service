@@ -14,10 +14,13 @@ type ShortLinkUsecase interface {
 	DeleteByCode(ctx context.Context, code string) error
 }
 
-type ShortLinkRepository interface {
-	GetAll(ctx context.Context) ([]model.ShortLink, error)
-	GetByCode(ctx context.Context, code string) (model.ShortLink, error)
+type ShortLinkCommandRepository interface {
 	Create(ctx context.Context, shortlink *model.ShortLink) error
 	UpdateByCode(ctx context.Context, shortlink *model.ShortLink) error
 	DeleteByCode(ctx context.Context, code string) error
+}
+
+type ShortLinkQueryRepository interface {
+	GetAll(ctx context.Context) ([]model.ShortLink, error)
+	GetByCode(ctx context.Context, code string) (model.ShortLink, error)
 }

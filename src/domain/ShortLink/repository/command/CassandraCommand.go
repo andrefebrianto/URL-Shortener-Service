@@ -17,36 +17,6 @@ func CreateCassandraCommandRepository(cassandraClient *gocql.ClusterConfig) Cass
 	return CassandraCommandRepository{cassandraClient: cassandraClient}
 }
 
-func (repository CassandraCommandRepository) GetAll(ctx context.Context) ([]model.ShortLink, error) {
-	session, err := repository.cassandraClient.CreateSession()
-	if err != nil {
-		return nil, err
-	}
-	defer session.Close()
-
-	err = session.Query("SELECT * FROM shortlink;").WithContext(ctx).Exec()
-	if err != nil {
-		return nil, err
-	}
-
-	return nil, nil
-}
-
-func (repository CassandraCommandRepository) GetByCode(ctx context.Context, code string) (model.ShortLink, error) {
-	session, err := repository.cassandraClient.CreateSession()
-	if err != nil {
-		return model.ShortLink{}, err
-	}
-	defer session.Close()
-
-	err = session.Query("SELECT * FROM shortlink;").WithContext(ctx).Exec()
-	if err != nil {
-		return model.ShortLink{}, err
-	}
-
-	return model.ShortLink{}, nil
-}
-
 func (repository CassandraCommandRepository) Create(ctx context.Context, shortlink *model.ShortLink) error {
 	session, err := repository.cassandraClient.CreateSession()
 	if err != nil {
@@ -54,7 +24,7 @@ func (repository CassandraCommandRepository) Create(ctx context.Context, shortli
 	}
 	defer session.Close()
 
-	err = session.Query("INSERT INTO shortlink (Id, Code, Url, CreatedAt, UpdatedAt, ExpiredAt, VisitorCounter) VALUES (?, ?, ?, ?, ?, ?, ?);",
+	err = session.Query("INSERT INTO shortlink (Id, Code, Url, CreatedAt, UpdatedAt, ExpiredAt, VisitorCounter) VALUES (?, ?, ?, ?, ?, ?, ?) IF NOT EXISTS;",
 		shortlink.Id, shortlink.Code, shortlink.Url, shortlink.CreatedAt, shortlink.UpdatedAt, shortlink.ExpiredAt, shortlink.VisitorCounter).WithContext(ctx).Exec()
 	if err != nil {
 		return err
@@ -69,7 +39,7 @@ func (repository CassandraCommandRepository) UpdateByCode(ctx context.Context, s
 		return err
 	}
 	defer session.Close()
-	err = session.Query("UPDATE shortlink set Url = ?, UpdatedAt = ?, ExpiredAt = ?, VisitorCounter = ?;",
+	err = session.Query("UPDATE shortlink set Url = ?, UpdatedAt = ?, ExpiredAt = ?, VisitorCounter = ? IF NOT EXISTS;",
 		shortlink.Url, gocql.TimeUUID().Timestamp(), shortlink.ExpiredAt, shortlink.VisitorCounter).WithContext(ctx).Exec()
 	if err != nil {
 		return err

@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"net/http"
-	"time"
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
@@ -36,8 +35,6 @@ func init() {
 }
 
 func main() {
-	contextTimeout := time.Duration(GlobalConfig.GetInt("context.timeout")) * time.Second
-
 	// Echo instance
 	httpServer := echo.New()
 
@@ -49,7 +46,6 @@ func main() {
 	// Routes
 	httpServer.GET("/", responsePing)
 
-	fmt.Println(contextTimeout)
 	// Start server
 	httpServer.Logger.Fatal(httpServer.Start(GlobalConfig.GetString("server.port")))
 }
