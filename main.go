@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"net/http"
 	"time"
 
@@ -33,10 +32,6 @@ func init() {
 	err := GlobalConfig.ReadInConfig()
 	if err != nil {
 		panic(err)
-	}
-
-	if GlobalConfig.GetBool(`debug`) {
-		fmt.Println("Service RUN on DEBUG mode")
 	}
 }
 
