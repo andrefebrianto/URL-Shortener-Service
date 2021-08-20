@@ -2,12 +2,8 @@ package httpcontroller
 
 import (
 	"net/http"
-	"time"
 
 	"github.com/andrefebrianto/URL-Shortener-Service/src/domain/ShortLink/contract"
-	"github.com/andrefebrianto/URL-Shortener-Service/src/domain/ShortLink/repository/command"
-	"github.com/andrefebrianto/URL-Shortener-Service/src/domain/ShortLink/repository/query"
-	"github.com/andrefebrianto/URL-Shortener-Service/src/domain/ShortLink/usecase"
 	model "github.com/andrefebrianto/URL-Shortener-Service/src/model"
 	"github.com/labstack/echo/v4"
 )
@@ -16,37 +12,79 @@ type ShortLinkHttpController struct {
 	shortLinkUseCase contract.ShortLinkUsecase
 }
 
-var (
-	shortLinkCommandRepo = command.CreateCassandraCommandRepository()
-	shortLinkQueryRepo   = query.CreateCassandraQueryRepository()
-	shortLinkUseCase     = usecase.CreateShortLinkUseCase(shortLinkCommandRepo, shortLinkQueryRepo, 2*time.Second)
-	controller           = ShortLinkHttpController{}
-)
+func CreateShortLinkHttpController(server *echo.Echo, shortLinkUseCase contract.ShortLinkUsecase) {
+	controller := ShortLinkHttpController{shortLinkUseCase: shortLinkUseCase}
 
-func CreateShortLinkHttpController(server *echo.Echo) {
-	server.POST("/api/v1/shortlinks", nil)
-	server.GET("/api/v1/shortlinks", nil)
-	server.GET("/api/v1/shortlinks/:id", nil)
-	server.DELETE("/api/v1/shortlinks/:code", nil)
-	server.GET("/:code", nil)
+	server.POST("/api/v1/shortlinks", controller.CreateShortLink)
+	server.GET("/api/v1/shortlinks", controller.GetShortlinks)
+	server.PATCH("/api/v1/shortlinks/:id", controller.UpdateShortlinks)
+	server.DELETE("/api/v1/shortlinks/:code", controller.DeleteShortlinks)
+	server.GET("/:code", controller.ForwardShortlink)
 }
 
 func (controller ShortLinkHttpController) CreateShortLink(context echo.Context) error {
-	return context.JSON(http.StatusOK, model.CustomError{Message: "Short link created"})
+	var shortLink model.ShortLink
+	err := context.Bind(&shortLink)
+	if err != nil {
+		return context.JSON(http.StatusUnprocessableEntity, model.HttpResponseObject{Message: err.Error()})
+	}
+
+	ctx := context.Request().Context()
+	err = controller.shortLinkUseCase.Create(ctx, &shortLink)
+	if err != nil {
+		return context.JSON(http.StatusInternalServerError, model.HttpResponseObject{Message: err.Error()})
+	}
+
+	return context.JSON(http.StatusOK, model.HttpResponseObject{Message: "Short link created"})
 }
 
 func (controller ShortLinkHttpController) GetShortlinks(context echo.Context) error {
-	return context.JSON(http.StatusOK, model.CustomError{Message: "Short links retrieved"})
+	ctx := context.Request().Context()
+
+	shortLinks, err := controller.shortLinkUseCase.GetAll(ctx)
+	if err != nil {
+		return context.JSON(http.StatusInternalServerError, model.HttpResponseObject{Message: err.Error()})
+	}
+
+	return context.JSON(http.StatusOK, model.HttpResponseObject{Message: "Short links retrieved", Data: shortLinks})
 }
 
 func (controller ShortLinkHttpController) UpdateShortlinks(context echo.Context) error {
-	return context.JSON(http.StatusOK, model.CustomError{Message: "Short link updated"})
+	var shortLink model.ShortLink
+	err := context.Bind(&shortLink)
+	if err != nil {
+		return context.JSON(http.StatusUnprocessableEntity, model.HttpResponseObject{Message: err.Error()})
+	}
+
+	ctx := context.Request().Context()
+	err = controller.shortLinkUseCase.UpdateByCode(ctx, &shortLink)
+	if err != nil {
+		return context.JSON(http.StatusInternalServerError, model.HttpResponseObject{Message: err.Error()})
+	}
+
+	return context.JSON(http.StatusOK, model.HttpResponseObject{Message: "Short link updated"})
 }
 
 func (controller ShortLinkHttpController) DeleteShortlinks(context echo.Context) error {
-	return context.JSON(http.StatusOK, model.CustomError{Message: "Short link deleted"})
+	code := context.Param("code")
+	ctx := context.Request().Context()
+
+	err := controller.shortLinkUseCase.DeleteByCode(ctx, code)
+	if err != nil {
+		return context.JSON(http.StatusInternalServerError, model.HttpResponseObject{Message: err.Error()})
+	}
+
+	return context.JSON(http.StatusOK, model.HttpResponseObject{Message: "Short link deleted"})
 }
 
 func (controller ShortLinkHttpController) ForwardShortlink(context echo.Context) error {
-	return context.JSON(http.StatusOK, model.CustomError{Message: "Short link forwarded"})
+	code := context.Param("code")
+	ctx := context.Request().Context()
+
+	shortLink, err := controller.shortLinkUseCase.GetByCode(ctx, code)
+	if err != nil {
+		return context.JSON(http.StatusInternalServerError, model.HttpResponseObject{Message: err.Error()})
+	}
+
+	return context.JSON(http.StatusOK, model.HttpResponseObject{Message: "Short link forwarded", Data: shortLink})
 }

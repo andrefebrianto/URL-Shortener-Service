@@ -3,7 +3,13 @@ package main
 import (
 	"fmt"
 	"net/http"
+	"time"
 
+	"github.com/andrefebrianto/URL-Shortener-Service/src/domain/ShortLink/repository/command"
+	"github.com/andrefebrianto/URL-Shortener-Service/src/domain/ShortLink/repository/query"
+	"github.com/andrefebrianto/URL-Shortener-Service/src/domain/ShortLink/usecase"
+	"github.com/andrefebrianto/URL-Shortener-Service/src/httpcontroller"
+	"github.com/andrefebrianto/URL-Shortener-Service/src/util/database/cassandra"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/spf13/viper"
@@ -35,6 +41,9 @@ func init() {
 }
 
 func main() {
+	// Initialize database
+	cassandra.SetupConnection()
+
 	// Echo instance
 	httpServer := echo.New()
 
@@ -45,6 +54,12 @@ func main() {
 
 	// Routes
 	httpServer.GET("/", responsePing)
+
+	shortLinkCommandRepo := command.CreateCassandraCommandRepository(cassandra.GetConnection())
+	shortLinkQueryRepo := query.CreateCassandraQueryRepository(cassandra.GetConnection())
+	shortLinkUseCase := usecase.CreateShortLinkUseCase(shortLinkCommandRepo, shortLinkQueryRepo, time.Duration(GlobalConfig.GetInt("context.timeout"))*time.Second)
+
+	httpcontroller.CreateShortLinkHttpController(httpServer, shortLinkUseCase)
 
 	// Start server
 	httpServer.Logger.Fatal(httpServer.Start(GlobalConfig.GetString("server.port")))
