@@ -1,8 +1,6 @@
 package cassandra
 
 import (
-	"fmt"
-
 	"github.com/gocql/gocql"
 	"github.com/spf13/viper"
 )
@@ -19,17 +17,16 @@ func init() {
 }
 
 func SetupConnection() {
-	hosts := config.GetStringSlice("cassandraHosts")
-	fmt.Println(hosts)
+	hosts := config.GetStringSlice("cassandra.hosts")
 	cluster = gocql.NewCluster(hosts...)
+	cluster.Keyspace = config.GetString("cassandra.keyspace")
 	// cluster.Authenticator = gocql.PasswordAuthenticator{
-	// 	Username: "user",
-	// 	Password: "password",
+	// 	Username: config.GetString("cassandra.user"),
+	// 	Password: config.GetString("cassandra.password"),
 	// }
 }
 
 //GetConnection ...
 func GetConnection() *gocql.ClusterConfig {
-	fmt.Println(cluster)
 	return cluster
 }
