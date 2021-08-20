@@ -22,22 +22,57 @@ func CreateShortLinkUseCase(command contract.ShortLinkCommandRepository, query c
 	}
 }
 
-func (usecase ShortLinkUseCase) Create(mainContext context.Context, shortlink *model.ShortLink) (*model.ShortLink, error) {
-	return nil, nil
+func (usecase ShortLinkUseCase) Create(ctx context.Context, shortlink *model.ShortLink) error {
+	contextWithTimeOut, cancel := context.WithTimeout(ctx, usecase.contextTimeout)
+	defer cancel()
+
+	err := usecase.cassandraCommandRepository.Create(contextWithTimeOut, shortlink)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func (usecase ShortLinkUseCase) GetAll(ctx context.Context) ([]model.ShortLink, error) {
-	return nil, nil
+	contextWithTimeOut, cancel := context.WithTimeout(ctx, usecase.contextTimeout)
+	defer cancel()
+
+	shortLinks, err := usecase.cassandraQueryRepository.GetAll(contextWithTimeOut)
+	if err != nil {
+		return nil, err
+	}
+	return shortLinks, nil
 }
 
-func (usecase ShortLinkUseCase) GetByCode(ctx context.Context, code string) (model.ShortLink, error) {
-	return model.ShortLink{}, nil
+func (usecase ShortLinkUseCase) GetByCode(ctx context.Context, code string) (*model.ShortLink, error) {
+	contextWithTimeOut, cancel := context.WithTimeout(ctx, usecase.contextTimeout)
+	defer cancel()
+
+	shortLink, err := usecase.cassandraQueryRepository.GetByCode(contextWithTimeOut, code)
+	if err != nil {
+		return nil, err
+	}
+	return shortLink, nil
 }
 
 func (usecase ShortLinkUseCase) UpdateByCode(ctx context.Context, shortlink *model.ShortLink) error {
+	contextWithTimeOut, cancel := context.WithTimeout(ctx, usecase.contextTimeout)
+	defer cancel()
+
+	err := usecase.cassandraCommandRepository.UpdateByCode(contextWithTimeOut, shortlink)
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
 func (usecase ShortLinkUseCase) DeleteByCode(ctx context.Context, code string) error {
+	contextWithTimeOut, cancel := context.WithTimeout(ctx, usecase.contextTimeout)
+	defer cancel()
+
+	err := usecase.cassandraCommandRepository.DeleteByCode(contextWithTimeOut, code)
+	if err != nil {
+		return err
+	}
 	return nil
 }
