@@ -1,6 +1,6 @@
 package domain
 
-type CustomError struct {
+type HttpResponseObject struct {
 	Message string `json:"message"`
 	Data    interface{}
 }
