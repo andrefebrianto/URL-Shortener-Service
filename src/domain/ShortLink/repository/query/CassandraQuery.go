@@ -2,6 +2,7 @@ package query
 
 import (
 	"context"
+	"fmt"
 
 	model "github.com/andrefebrianto/URL-Shortener-Service/src/model"
 	"github.com/gocql/gocql"
@@ -24,26 +25,27 @@ func (repository CassandraQueryRepository) GetAll(ctx context.Context) ([]model.
 	}
 	defer session.Close()
 
-	err = session.Query("SELECT * FROM shortlink;").WithContext(ctx).Exec()
+	err = session.Query("SELECT * FROM shortlink;").WithContext(ctx).Consistency(gocql.One).Exec()
 	if err != nil {
+		fmt.Println(err.Error())
 		return nil, err
 	}
 
 	return nil, nil
 }
 
-func (repository CassandraQueryRepository) GetByCode(ctx context.Context, code string) (model.ShortLink, error) {
+func (repository CassandraQueryRepository) GetByCode(ctx context.Context, code string) (*model.ShortLink, error) {
 	session, err := repository.cassandraClient.CreateSession()
 	if err != nil {
-		return model.ShortLink{}, err
+		return nil, err
 	}
 	defer session.Close()
 
-	shortlink := model.ShortLink{}
+	shortlink := &model.ShortLink{}
 
-	err = session.Query("SELECT * FROM shortlink WHERE Id = ? AND Code = ?;", PRIMARY_ID, code).WithContext(ctx).Consistency(gocql.One).Scan(&shortlink)
+	err = session.Query("SELECT * FROM shortlink WHERE Id = ? AND Code = ?;", PRIMARY_ID, code).WithContext(ctx).Consistency(gocql.One).Scan(shortlink)
 	if err != nil {
-		return model.ShortLink{}, err
+		return nil, err
 	}
 
 	return shortlink, nil
