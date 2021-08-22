@@ -12,12 +12,14 @@ type ShortLinkUsecase interface {
 	Create(ctx context.Context, shortlink *model.ShortLink) error
 	UpdateByCode(ctx context.Context, shortlink *model.ShortLink) error
 	DeleteByCode(ctx context.Context, code string) error
+	AddCounterByCode(ctx context.Context, code string, counter uint64) error
 }
 
 type ShortLinkCommandRepository interface {
 	Create(ctx context.Context, shortlink *model.ShortLink) error
 	UpdateByCode(ctx context.Context, shortlink *model.ShortLink) error
 	DeleteByCode(ctx context.Context, code string) error
+	AddCounterByCode(ctx context.Context, code string, counter uint64) error
 }
 
 type ShortLinkQueryRepository interface {
