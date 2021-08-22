@@ -2,6 +2,7 @@ package command
 
 import (
 	"context"
+	"time"
 
 	model "github.com/andrefebrianto/URL-Shortener-Service/src/model"
 	"github.com/gocql/gocql"
@@ -25,7 +26,7 @@ func (repository CassandraCommandRepository) Create(ctx context.Context, shortli
 	defer session.Close()
 
 	err = session.Query("INSERT INTO shortlink (Id, Code, Url, CreatedAt, UpdatedAt, ExpiredAt, VisitorCounter) VALUES (?, ?, ?, ?, ?, ?, ?) IF NOT EXISTS;",
-		shortlink.Id, shortlink.Code, shortlink.Url, shortlink.CreatedAt, shortlink.UpdatedAt, shortlink.ExpiredAt, shortlink.VisitorCounter).WithContext(ctx).Exec()
+		PRIMARY_ID, shortlink.Code, shortlink.Url, shortlink.CreatedAt, shortlink.UpdatedAt, shortlink.ExpiredAt, shortlink.VisitorCounter).WithContext(ctx).Exec()
 	if err != nil {
 		return err
 	}
@@ -39,8 +40,25 @@ func (repository CassandraCommandRepository) UpdateByCode(ctx context.Context, s
 		return err
 	}
 	defer session.Close()
-	err = session.Query("UPDATE shortlink set Url = ?, UpdatedAt = ?, ExpiredAt = ?, VisitorCounter = ? IF NOT EXISTS;",
-		shortlink.Url, gocql.TimeUUID().Timestamp(), shortlink.ExpiredAt, shortlink.VisitorCounter).WithContext(ctx).Exec()
+
+	err = session.Query("UPDATE shortlink set Url = ?, UpdatedAt = ?, ExpiredAt = ? WHERE Id = ? AND Code = ?;",
+		shortlink.Url, time.Now().Local(), shortlink.ExpiredAt, PRIMARY_ID, shortlink.Code).WithContext(ctx).Exec()
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (repository CassandraCommandRepository) AddCounterByCode(ctx context.Context, code string, counter uint64) error {
+	session, err := repository.cassandraClient.CreateSession()
+	if err != nil {
+		return err
+	}
+	defer session.Close()
+
+	err = session.Query("UPDATE shortlink set visitorcounter = ? WHERE Id = ? AND Code = ?;",
+		counter, PRIMARY_ID, code).WithContext(ctx).Exec()
 	if err != nil {
 		return err
 	}
