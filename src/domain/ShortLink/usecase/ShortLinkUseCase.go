@@ -6,6 +6,7 @@ import (
 
 	"github.com/andrefebrianto/URL-Shortener-Service/src/domain/ShortLink/contract"
 	model "github.com/andrefebrianto/URL-Shortener-Service/src/model"
+	"github.com/andrefebrianto/URL-Shortener-Service/src/util/generator"
 )
 
 type ShortLinkUseCase struct {
@@ -25,6 +26,12 @@ func CreateShortLinkUseCase(command contract.ShortLinkCommandRepository, query c
 func (usecase ShortLinkUseCase) Create(ctx context.Context, shortlink *model.ShortLink) error {
 	contextWithTimeOut, cancel := context.WithTimeout(ctx, usecase.contextTimeout)
 	defer cancel()
+
+	shortlink.Code, _ = generator.GenerateRandomString(10)
+	shortlink.CreatedAt = time.Now().Local()
+	shortlink.UpdatedAt = time.Now().Local()
+	shortlink.ExpiredAt = time.Now().Local().AddDate(0, 0, 7)
+	shortlink.VisitorCounter = 0
 
 	err := usecase.cassandraCommandRepository.Create(contextWithTimeOut, shortlink)
 	if err != nil {
@@ -52,6 +59,7 @@ func (usecase ShortLinkUseCase) GetByCode(ctx context.Context, code string) (*mo
 	if err != nil {
 		return nil, err
 	}
+
 	return shortLink, nil
 }
 
@@ -71,6 +79,17 @@ func (usecase ShortLinkUseCase) DeleteByCode(ctx context.Context, code string) e
 	defer cancel()
 
 	err := usecase.cassandraCommandRepository.DeleteByCode(contextWithTimeOut, code)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (usecase ShortLinkUseCase) AddCounterByCode(ctx context.Context, code string, counter uint64) error {
+	contextWithTimeOut, cancel := context.WithTimeout(ctx, usecase.contextTimeout)
+	defer cancel()
+
+	err := usecase.cassandraCommandRepository.AddCounterByCode(contextWithTimeOut, code, counter)
 	if err != nil {
 		return err
 	}
