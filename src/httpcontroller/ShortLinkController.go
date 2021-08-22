@@ -18,7 +18,7 @@ func CreateShortLinkHttpController(server *echo.Echo, shortLinkUseCase contract.
 
 	server.POST("/api/v1/shortlinks", controller.CreateShortLink)
 	server.GET("/api/v1/shortlinks", controller.GetShortlinks)
-	server.PATCH("/api/v1/shortlinks/:code", controller.UpdateShortlinks)
+	server.PATCH("/api/v1/shortlinks", controller.UpdateShortlinks)
 	server.DELETE("/api/v1/shortlinks/:code", controller.DeleteShortlinks)
 	server.GET("/:code", controller.ForwardShortlink)
 }
