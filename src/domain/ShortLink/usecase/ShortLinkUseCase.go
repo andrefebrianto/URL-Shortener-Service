@@ -67,6 +67,8 @@ func (usecase ShortLinkUseCase) UpdateByCode(ctx context.Context, shortlink *mod
 	contextWithTimeOut, cancel := context.WithTimeout(ctx, usecase.contextTimeout)
 	defer cancel()
 
+	shortlink.ExpiredAt = time.Now().Local().AddDate(0, 0, 7)
+
 	err := usecase.cassandraCommandRepository.UpdateByCode(contextWithTimeOut, shortlink)
 	if err != nil {
 		return err
