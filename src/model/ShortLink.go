@@ -6,7 +6,7 @@ import (
 
 // ShortLink ...
 type ShortLink struct {
-	Id             string    `json:"id" gorm:"primary_key"`
+	Id             string    `json:"id"`
 	Code           string    `json:"code"`
 	Url            string    `json:"url"`
 	CreatedAt      time.Time `json:"createdAt"`
