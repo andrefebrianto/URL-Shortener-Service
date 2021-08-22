@@ -2,6 +2,8 @@ package query
 
 import (
 	"context"
+	"errors"
+	"time"
 
 	model "github.com/andrefebrianto/URL-Shortener-Service/src/model"
 	"github.com/gocql/gocql"
@@ -24,23 +26,30 @@ func (repository CassandraQueryRepository) GetAll(ctx context.Context) ([]model.
 	}
 	defer session.Close()
 
-	err = session.Query("SELECT * FROM shortlink;").WithContext(ctx).Consistency(gocql.One).Exec()
-	if err != nil {
-		return nil, err
+	shortlinks := make([]model.ShortLink, 0)
+	scanner := session.Query("SELECT * FROM shortlink;").WithContext(ctx).Consistency(gocql.One).Iter().Scanner()
+	for scanner.Next() {
+		var Id string
+		var Code string
+		var Url string
+		var CreatedAt time.Time
+		var UpdatedAt time.Time
+		var ExpiredAt time.Time
+		var VisitorCounter uint64
+
+		err = scanner.Scan(&Id, &Code, &CreatedAt, &ExpiredAt, &UpdatedAt, &Url, &VisitorCounter)
+		if err != nil {
+			return nil, err
+		}
+
+		shortlinks = append(shortlinks, model.ShortLink{Id: Id, Code: Code, Url: Url, CreatedAt: CreatedAt, UpdatedAt: UpdatedAt, ExpiredAt: ExpiredAt, VisitorCounter: VisitorCounter})
 	}
 
-	// scanner := session.Query("SELECT * FROM shortlink;").WithContext(ctx).Consistency(gocql.One).Iter().Scanner()
+	if len(shortlinks) == 0 {
+		return nil, errors.New("not found")
+	}
 
-	// for scanner.Next() {
-	// 	var shortLink model.ShortLink
-	// 	err = scanner.Scan(&shortLink)
-	// 	if err != nil {
-	// 		fmt.Println(err)
-	// 	}
-	// 	fmt.Println(shortLink)
-	// }
-
-	return nil, nil
+	return shortlinks, nil
 }
 
 func (repository CassandraQueryRepository) GetByCode(ctx context.Context, code string) (*model.ShortLink, error) {
@@ -50,12 +59,21 @@ func (repository CassandraQueryRepository) GetByCode(ctx context.Context, code s
 	}
 	defer session.Close()
 
-	shortlink := &model.ShortLink{}
+	var Id string
+	var Code string
+	var Url string
+	var CreatedAt time.Time
+	var UpdatedAt time.Time
+	var ExpiredAt time.Time
+	var VisitorCounter uint64
 
-	err = session.Query("SELECT * FROM shortlink WHERE Id = ? AND Code = ?;", PRIMARY_ID, code).WithContext(ctx).Consistency(gocql.One).Scan(shortlink)
+	err = session.Query("SELECT * FROM shortlink WHERE Id = ? AND Code = ?;", PRIMARY_ID, code).WithContext(ctx).Consistency(gocql.One).Scan(&Id, &Code,
+		&CreatedAt, &ExpiredAt, &UpdatedAt, &Url, &VisitorCounter)
 	if err != nil {
 		return nil, err
 	}
+
+	shortlink := &model.ShortLink{Id: Id, Code: Code, Url: Url, CreatedAt: CreatedAt, UpdatedAt: UpdatedAt, ExpiredAt: ExpiredAt, VisitorCounter: VisitorCounter}
 
 	return shortlink, nil
 }
