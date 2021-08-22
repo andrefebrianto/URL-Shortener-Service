@@ -2,6 +2,7 @@ package httpcontroller
 
 import (
 	"net/http"
+	"time"
 
 	"github.com/andrefebrianto/URL-Shortener-Service/src/domain/ShortLink/contract"
 	model "github.com/andrefebrianto/URL-Shortener-Service/src/model"
@@ -17,7 +18,7 @@ func CreateShortLinkHttpController(server *echo.Echo, shortLinkUseCase contract.
 
 	server.POST("/api/v1/shortlinks", controller.CreateShortLink)
 	server.GET("/api/v1/shortlinks", controller.GetShortlinks)
-	server.PATCH("/api/v1/shortlinks/:id", controller.UpdateShortlinks)
+	server.PATCH("/api/v1/shortlinks/:code", controller.UpdateShortlinks)
 	server.DELETE("/api/v1/shortlinks/:code", controller.DeleteShortlinks)
 	server.GET("/:code", controller.ForwardShortlink)
 }
@@ -43,6 +44,9 @@ func (controller ShortLinkHttpController) GetShortlinks(context echo.Context) er
 
 	shortLinks, err := controller.shortLinkUseCase.GetAll(ctx)
 	if err != nil {
+		if err.Error() == "not found" {
+			return context.JSON(http.StatusNotFound, model.HttpResponseObject{Message: "Short link not found"})
+		}
 		return context.JSON(http.StatusInternalServerError, model.HttpResponseObject{Message: err.Error()})
 	}
 
@@ -83,8 +87,17 @@ func (controller ShortLinkHttpController) ForwardShortlink(context echo.Context)
 
 	shortLink, err := controller.shortLinkUseCase.GetByCode(ctx, code)
 	if err != nil {
+		if err.Error() == "not found" {
+			return context.JSON(http.StatusNotFound, model.HttpResponseObject{Message: "Short link not found"})
+		}
 		return context.JSON(http.StatusInternalServerError, model.HttpResponseObject{Message: err.Error()})
 	}
 
-	return context.JSON(http.StatusOK, model.HttpResponseObject{Message: "Short link forwarded", Data: shortLink})
+	if time.Now().Local().After(shortLink.ExpiredAt) {
+		return context.JSON(http.StatusGone, model.HttpResponseObject{Message: "Short link expired"})
+	}
+
+	controller.shortLinkUseCase.AddCounterByCode(ctx, shortLink.Code, shortLink.VisitorCounter+1)
+
+	return context.Redirect(http.StatusFound, shortLink.Url)
 }
