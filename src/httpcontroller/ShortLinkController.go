@@ -36,7 +36,7 @@ func (controller ShortLinkHttpController) CreateShortLink(context echo.Context) 
 		return context.JSON(http.StatusInternalServerError, model.HttpResponseObject{Message: err.Error()})
 	}
 
-	return context.JSON(http.StatusOK, model.HttpResponseObject{Message: "Short link created"})
+	return context.JSON(http.StatusOK, model.HttpResponseObject{Message: "Short link created", Data: shortLink})
 }
 
 func (controller ShortLinkHttpController) GetShortlinks(context echo.Context) error {
