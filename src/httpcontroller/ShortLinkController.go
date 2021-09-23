@@ -10,11 +10,11 @@ import (
 )
 
 type ShortLinkHttpController struct {
-	shortLinkUseCase contract.ShortLinkUsecase
+	ShortLinkUseCase contract.ShortLinkUsecase
 }
 
 func CreateShortLinkHttpController(server *echo.Echo, shortLinkUseCase contract.ShortLinkUsecase) {
-	controller := ShortLinkHttpController{shortLinkUseCase: shortLinkUseCase}
+	controller := ShortLinkHttpController{ShortLinkUseCase: shortLinkUseCase}
 
 	server.POST("/api/v1/shortlinks", controller.CreateShortLink)
 	server.GET("/api/v1/shortlinks", controller.GetShortlinks)
@@ -31,18 +31,18 @@ func (controller ShortLinkHttpController) CreateShortLink(context echo.Context) 
 	}
 
 	ctx := context.Request().Context()
-	err = controller.shortLinkUseCase.Create(ctx, &shortLink)
+	err = controller.ShortLinkUseCase.Create(ctx, &shortLink)
 	if err != nil {
 		return context.JSON(http.StatusInternalServerError, model.HttpResponseObject{Message: err.Error()})
 	}
 
-	return context.JSON(http.StatusOK, model.HttpResponseObject{Message: "Short link created", Data: shortLink})
+	return context.JSON(http.StatusCreated, model.HttpResponseObject{Message: "Short link created", Data: shortLink})
 }
 
 func (controller ShortLinkHttpController) GetShortlinks(context echo.Context) error {
 	ctx := context.Request().Context()
 
-	shortLinks, err := controller.shortLinkUseCase.GetAll(ctx)
+	shortLinks, err := controller.ShortLinkUseCase.GetAll(ctx)
 	if err != nil {
 		if err.Error() == "not found" {
 			return context.JSON(http.StatusNotFound, model.HttpResponseObject{Message: "Short link not found"})
@@ -61,7 +61,7 @@ func (controller ShortLinkHttpController) UpdateShortlinks(context echo.Context)
 	}
 
 	ctx := context.Request().Context()
-	err = controller.shortLinkUseCase.UpdateByCode(ctx, &shortLink)
+	err = controller.ShortLinkUseCase.UpdateByCode(ctx, &shortLink)
 	if err != nil {
 		return context.JSON(http.StatusInternalServerError, model.HttpResponseObject{Message: err.Error()})
 	}
@@ -73,7 +73,7 @@ func (controller ShortLinkHttpController) DeleteShortlinks(context echo.Context)
 	code := context.Param("code")
 	ctx := context.Request().Context()
 
-	err := controller.shortLinkUseCase.DeleteByCode(ctx, code)
+	err := controller.ShortLinkUseCase.DeleteByCode(ctx, code)
 	if err != nil {
 		return context.JSON(http.StatusInternalServerError, model.HttpResponseObject{Message: err.Error()})
 	}
@@ -85,7 +85,7 @@ func (controller ShortLinkHttpController) ForwardShortlink(context echo.Context)
 	code := context.Param("code")
 	ctx := context.Request().Context()
 
-	shortLink, err := controller.shortLinkUseCase.GetByCode(ctx, code)
+	shortLink, err := controller.ShortLinkUseCase.GetByCode(ctx, code)
 	if err != nil {
 		if err.Error() == "not found" {
 			return context.JSON(http.StatusNotFound, model.HttpResponseObject{Message: "Short link not found"})
@@ -97,7 +97,7 @@ func (controller ShortLinkHttpController) ForwardShortlink(context echo.Context)
 		return context.JSON(http.StatusGone, model.HttpResponseObject{Message: "Short link expired"})
 	}
 
-	controller.shortLinkUseCase.AddCounterByCode(ctx, shortLink.Code, shortLink.VisitorCounter+1)
+	controller.ShortLinkUseCase.AddCounterByCode(ctx, shortLink.Code, shortLink.VisitorCounter+1)
 
 	return context.Redirect(http.StatusFound, shortLink.Url)
 }
