@@ -4,9 +4,9 @@ import (
 	"context"
 	"time"
 
-	"github.com/andrefebrianto/URL-Shortener-Service/src/domain/ShortLink/contract"
-	model "github.com/andrefebrianto/URL-Shortener-Service/src/model"
-	"github.com/andrefebrianto/URL-Shortener-Service/src/util/generator"
+	"github.com/andrefebrianto/URL-Shortener-Service/domain/ShortLink/contract"
+	"github.com/andrefebrianto/URL-Shortener-Service/generator"
+	model "github.com/andrefebrianto/URL-Shortener-Service/model"
 )
 
 type ShortLinkUseCase struct {

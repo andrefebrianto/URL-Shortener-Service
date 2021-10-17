@@ -6,10 +6,10 @@ import (
 	"testing"
 	"time"
 
+	"github.com/andrefebrianto/URL-Shortener-Service/domain/ShortLink/usecase"
+	ShortLinkUseCase "github.com/andrefebrianto/URL-Shortener-Service/domain/ShortLink/usecase"
 	"github.com/andrefebrianto/URL-Shortener-Service/mocks"
-	"github.com/andrefebrianto/URL-Shortener-Service/src/domain/ShortLink/usecase"
-	ShortLinkUseCase "github.com/andrefebrianto/URL-Shortener-Service/src/domain/ShortLink/usecase"
-	model "github.com/andrefebrianto/URL-Shortener-Service/src/model"
+	model "github.com/andrefebrianto/URL-Shortener-Service/model"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )

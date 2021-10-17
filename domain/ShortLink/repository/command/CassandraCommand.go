@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	model "github.com/andrefebrianto/URL-Shortener-Service/src/model"
+	model "github.com/andrefebrianto/URL-Shortener-Service/model"
 	"github.com/gocql/gocql"
 )
 

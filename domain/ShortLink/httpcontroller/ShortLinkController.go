@@ -4,8 +4,8 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/andrefebrianto/URL-Shortener-Service/src/domain/ShortLink/contract"
-	model "github.com/andrefebrianto/URL-Shortener-Service/src/model"
+	"github.com/andrefebrianto/URL-Shortener-Service/domain/ShortLink/contract"
+	model "github.com/andrefebrianto/URL-Shortener-Service/model"
 	"github.com/labstack/echo/v4"
 )
 

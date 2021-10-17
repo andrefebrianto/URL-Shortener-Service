@@ -3,7 +3,7 @@ package contract
 import (
 	"context"
 
-	model "github.com/andrefebrianto/URL-Shortener-Service/src/model"
+	model "github.com/andrefebrianto/URL-Shortener-Service/model"
 )
 
 type ShortLinkUsecase interface {

@@ -9,9 +9,9 @@ import (
 	"testing"
 	"time"
 
+	"github.com/andrefebrianto/URL-Shortener-Service/domain/ShortLink/httpcontroller"
 	"github.com/andrefebrianto/URL-Shortener-Service/mocks"
-	"github.com/andrefebrianto/URL-Shortener-Service/src/httpcontroller"
-	model "github.com/andrefebrianto/URL-Shortener-Service/src/model"
+	model "github.com/andrefebrianto/URL-Shortener-Service/model"
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
