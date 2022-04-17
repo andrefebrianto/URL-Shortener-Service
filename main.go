@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/andrefebrianto/URL-Shortener-Service/config"
 	"github.com/andrefebrianto/URL-Shortener-Service/database/cassandra"
 	"github.com/andrefebrianto/URL-Shortener-Service/domain/ShortLink/httpcontroller"
 	"github.com/andrefebrianto/URL-Shortener-Service/domain/ShortLink/repository/command"
@@ -27,17 +28,11 @@ func responsePing(requestContext echo.Context) error {
 	return requestContext.String(http.StatusOK, "Service is running properly")
 }
 
-func init() {
-	GlobalConfig.SetConfigFile(`configs/configs.json`)
-	err := GlobalConfig.ReadInConfig()
-	if err != nil {
-		panic(err)
-	}
-}
-
 func main() {
+	appConfig := config.Load()
+
 	// Initialize database
-	cassandra.SetupConnection()
+	cassandra.SetupConnection(appConfig.CassandraConfiguration)
 
 	// Echo instance
 	httpServer := echo.New()
@@ -57,5 +52,5 @@ func main() {
 	httpcontroller.CreateShortLinkHttpController(httpServer, shortLinkUseCase)
 
 	// Start server
-	httpServer.Logger.Fatal(httpServer.Start(GlobalConfig.GetString("server.port")))
+	httpServer.Logger.Fatal(httpServer.Start(appConfig.Port))
 }

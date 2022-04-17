@@ -1,0 +1,14 @@
+{
+    "debug": true,
+    "server": {
+        "port": "$URL_SHORTENER_SERVICE_PORT",
+        "environment": "local"
+    },
+    "context": {
+        "timeout": 2
+    },
+    "cassandra": {
+        "hosts": ["$URL_SHORTENER_SERVICE_CASSANDRA_HOST"],
+        "keyspace": "$URL_SHORTENER_SERVICE_CASSANDRA_KEYSPACE"
+    }
+}
