@@ -97,7 +97,7 @@ func (controller ShortLinkHttpController) ForwardShortlink(context echo.Context)
 		return context.JSON(http.StatusGone, model.HttpResponseObject{Message: "Short link expired"})
 	}
 
-	controller.ShortLinkUseCase.AddCounterByCode(ctx, shortLink.Code, shortLink.VisitorCounter+1)
+	_ = controller.ShortLinkUseCase.AddCounterByCode(ctx, shortLink.Code, shortLink.VisitorCounter+1)
 
 	return context.Redirect(http.StatusFound, shortLink.Url)
 }
