@@ -1,9 +1,9 @@
 package config
 
 import (
-	"fmt"
 	"strings"
 
+	"github.com/labstack/gommon/log"
 	"github.com/spf13/viper"
 )
 
@@ -35,7 +35,7 @@ func init() {
 	v.AddConfigPath("../")
 
 	if err := v.ReadInConfig(); err != nil {
-		fmt.Printf("Failed to read the configuration file: %s", err)
+		log.Errorf("Failed to read the configuration file: %s", err)
 	}
 }
 
