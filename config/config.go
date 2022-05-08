@@ -26,10 +26,10 @@ var v = viper.New()
 
 func init() {
 	v.SetConfigName("config")
-	v.SetConfigType("yml")
+	v.SetConfigType("json")
 	v.SetEnvPrefix("USS")
 	v.AutomaticEnv()
-	v.SetDefault("port", ":3000")
+	v.SetDefault("server.port", ":3000")
 	v.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
 	v.AddConfigPath(".")
 	v.AddConfigPath("../")
@@ -41,11 +41,11 @@ func init() {
 
 func Load() *AppConfiguration {
 	return &AppConfiguration{
-		Port:        v.GetString("port"),
-		Environment: v.GetString("environment"),
+		Port:        v.GetString("server.port"),
+		Environment: v.GetString("server.environment"),
 		CassandraConfiguration: CassandraConfiguration{
-			Hosts:    v.GetStringSlice("cassandra-hosts"),
-			Keyspace: v.GetString("cassandra-keyspace"),
+			Hosts:    v.GetStringSlice("cassandra.hosts"),
+			Keyspace: v.GetString("cassandra.keyspace"),
 		},
 	}
 }
