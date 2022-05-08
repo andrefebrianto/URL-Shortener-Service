@@ -13,10 +13,15 @@ lint:
 test:
 	go test -coverprofile=coverage.out ./... && go tool cover -func coverage.out && go tool cover -html=coverage.out
 
-## build: Build binary
+## build: Compile source code and create binary file
 build:
-	go build -o ./build/url-shortener
+	@echo ">> Building App..."
+	@go build -o ./bin/url-shortener main.go
+	@echo ">> Finished"
 
 ## run: Build binary and execute the file
 run: build
-	./build/url-shortener
+	./bin/url-shortener
+
+## start: Start the program
+start: build run
